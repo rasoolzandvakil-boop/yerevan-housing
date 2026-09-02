@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Data — Yerevan Housing Research</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+.viz-root{
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --neg:#e34948;
+  --grid:#E4E8EC; --axis:#B8C0C8; --tipbg:#FFFFFF;
+}
+@media (prefers-color-scheme: dark){
+  .viz-root{ --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --neg:#e66767;
+    --grid:#2A3540; --axis:#455260; --tipbg:#232E3A; }
+}
+.chartbox{background:var(--panel); border:1px solid var(--line); border-radius:6px;
+  padding:16px 18px 10px; margin:14px 0;}
+.chartbox h3{margin:0 0 2px; font-size:15px;}
+.chartbox .sub{font-size:12.5px; color:var(--muted); margin:0 0 8px;}
+.legend{display:flex; flex-wrap:wrap; gap:4px 16px; font-size:12px; color:var(--muted); margin:4px 0 2px;}
+.legend span{display:inline-flex; align-items:center; gap:6px;}
+.legend i{width:10px; height:10px; border-radius:2px; display:inline-block;}
+.chart svg{display:block; width:100%; height:auto;}
+.smalls{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px;}
+#c_weo{grid-template-columns:repeat(auto-fit,minmax(380px,1fr));}
+.small{background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:12px 14px 6px;}
+.small h4{margin:0; font-size:13px;}
+.small .v{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--muted); margin:0 0 4px;}
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin:18px 0;}
+.tile{background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:14px 16px;}
+.tile .n{font-family:"IBM Plex Mono",monospace; font-size:26px; color:var(--navy); font-weight:500;}
+.tile .l{font-size:12.5px; color:var(--muted); margin-top:2px;}
+#tip{position:fixed; z-index:10; pointer-events:none; background:var(--tipbg);
+  border:1px solid var(--line); border-radius:5px; padding:7px 10px; font-size:12px;
+  box-shadow:0 2px 10px rgba(0,0,0,.12); display:none; max-width:240px;}
+#tip b{font-family:"IBM Plex Mono",monospace; font-weight:500;}
+#tip .row{display:flex; align-items:center; gap:6px; margin-top:2px;}
+#tip i{width:8px; height:8px; border-radius:2px; display:inline-block;}
+.axislab{font-size:10.5px; fill:var(--muted); font-family:"IBM Plex Sans",sans-serif;}
+.dlab{font-size:11px; font-weight:600; font-family:"IBM Plex Sans",sans-serif;}
+</style>
+</head>
+<body class="viz-root">
+<div class="wrap">
+<nav>
+  <a href="index.html">Overview</a>
+  <a href="macro.html">Macro</a>
+  <a href="market.html">Prices &amp; Districts</a>
+  <a href="rents.html">Rents &amp; Airbnb</a>
+  <a class="here" href="data.html">Data</a>
+  <a href="sources.html">Sources</a>
+</nav>
+<header class="page">
+  <p class="kicker">Interactive charts · official downloaded data</p>
+  <h1>The Data, Drawn</h1>
+  <p class="lede">Every chart below is drawn from the raw files in this site's <a href="https://github.com/rasoolzandvakil-boop/yerevan-housing/tree/main/data">data folder</a>: the Central Bank of Armenia's full RPPI export (quarterly, 2018–2026Q2, by segment and Yerevan zone) and the IMF's April 2026 WEO series — plus the district, rent, and new-build tables compiled from press republications of official statistics. Hover any chart for exact values; the <a href="https://github.com/rasoolzandvakil-boop/yerevan-housing/raw/main/data/Yerevan-Housing-Data.xlsx">Excel workbook</a> holds the same numbers as tables.</p>
+</header>
+
+<div class="tiles">
+  <div class="tile"><div class="n">+12.0%</div><div class="l">Residential prices y/y, 2026Q2 (CBA RPPI) — the rebound is official</div></div>
+  <div class="tile"><div class="n">+24.0%</div><div class="l">Yerevan-Center apartments y/y, 2026Q2 — the center now leads</div></div>
+  <div class="tile"><div class="n">195.5</div><div class="l">RPPI level, 2026Q2 (2018 = 100): prices have nearly doubled since 2018</div></div>
+  <div class="tile"><div class="n">8,497</div><div class="l">Sale transactions in 2026Q2, worth AMD 289.7 billion</div></div>
+</div>
+
+<h2>The official price index (CBA RPPI)</h2>
+<div class="chartbox">
+  <h3>Prices have nearly doubled since 2018 — and houses have overtaken apartments</h3>
+  <p class="sub">Index, 2018 = 100, quarterly to 2026Q2. Source: CBA RPPI data export.</p>
+  <div class="legend" id="lg1"></div>
+  <div class="chart" id="c_idx"></div>
+</div>
+<div class="chartbox">
+  <h3>Year-on-year growth: boom, 2025 pause, 2026 re-acceleration</h3>
+  <p class="sub">Residential property price index, % change on the same quarter a year earlier. Red = decline.</p>
+  <div class="chart" id="c_yoy"></div>
+</div>
+<div class="chartbox">
+  <h3>Where in Yerevan: apartment price index by zone</h3>
+  <p class="sub">Index, 2018 = 100. The Center corrected hardest in 2025 and is rebounding fastest in 2026.</p>
+  <div class="smalls" id="c_zones"></div>
+</div>
+<div class="chartbox">
+  <h3>Transactions: record volumes, still rising</h3>
+  <p class="sub">Residential property sale transactions per quarter, Armenia. Source: CBA RPPI export.</p>
+  <div class="chart" id="c_tx"></div>
+</div>
+
+<h2>Districts</h2>
+<div class="chartbox">
+  <h3>Secondary-market prices by district: July 2022 vs June 2026</h3>
+  <p class="sub">AMD thousands per sq m. Sources: official statistics via news.am (2022) and b24.am (2026).</p>
+  <div class="legend" id="lg2"></div>
+  <div class="chart" id="c_dist"></div>
+</div>
+<div class="chartbox">
+  <h3>The new-build premium</h3>
+  <p class="sub">New-build minimum asking (korter.am data, Jul 2026) vs secondary-market average (Jun 2026), AMD thousands per sq m. The Shengavit and Nork-Marash gaps are the transformation bets.</p>
+  <div class="legend" id="lg3"></div>
+  <div class="chart" id="c_nb"></div>
+</div>
+
+<h2>The macro backdrop (IMF WEO, April 2026)</h2>
+<div class="chartbox">
+  <h3>Growth, inflation, external and debt — history and IMF projections</h3>
+  <p class="sub">2015–2031. Hollow/hatched bars and dashed lines from 2026 onward are IMF projections.</p>
+  <div class="smalls" id="c_weo"></div>
+</div>
+
+<h2>Rents (indicative)</h2>
+<div class="chartbox">
+  <h3>Central one-bedroom rent: the 2022 spike never fully unwound</h3>
+  <p class="sub">US$ per month, spliced from press reports and listing data — indicative, not an official series.</p>
+  <div class="chart" id="c_rent"></div>
+</div>
+
+<footer>Charts drawn client-side from the repository's data files. Sources: Central Bank of Armenia RPPI export (downloaded Sep 2, 2026); IMF WEO April 2026 database; news.am / b24.am district tables citing official statistics; karucapatoxic.am (korter.am family) new-build asking prices; rent splice per the report. Same numbers in <a href="https://github.com/rasoolzandvakil-boop/yerevan-housing/raw/main/data/Yerevan-Housing-Data.xlsx">Yerevan-Housing-Data.xlsx</a>.</footer>
+</div>
+<div id="tip"></div>
+<script src="chartdata.js"></script>
+<script>
+const css = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+const tip = document.getElementById("tip");
+function showTip(html, x, y){ tip.innerHTML = html; tip.style.display = "block";
+  const r = tip.getBoundingClientRect();
+  tip.style.left = Math.min(x + 14, innerWidth - r.width - 8) + "px";
+  tip.style.top = Math.max(8, y - r.height - 12) + "px"; }
+function hideTip(){ tip.style.display = "none"; }
+const NS = "http://www.w3.org/2000/svg";
+function el(t, a){ const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; }
+function niceTicks(lo, hi, n){ const span = hi - lo || 1, step0 = span / n,
+  mag = Math.pow(10, Math.floor(Math.log10(step0))), norm = step0 / mag,
+  step = (norm < 1.5 ? 1 : norm < 3.5 ? 2 : norm < 7.5 ? 5 : 10) * mag,
+  t0 = Math.ceil(lo / step) * step, out = [];
+  for (let v = t0; v <= hi + 1e-9; v += step) out.push(+v.toFixed(6)); return out; }
+const fmt = v => v == null ? "—" : (Math.abs(v) >= 1000 ? v.toLocaleString("en-US") : (Math.round(v * 10) / 10).toLocaleString("en-US"));
+
+function frame(mount, W, H, padL, padR, padT, padB, lo, hi){
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}` });
+  mount.appendChild(svg);
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const Y = v => padT + ih * (1 - (v - lo) / (hi - lo));
+  niceTicks(lo, hi, 4).forEach(v => {
+    svg.appendChild(el("line", { x1: padL, x2: W - padR, y1: Y(v), y2: Y(v),
+      stroke: css("--grid"), "stroke-width": 1, "stroke-dasharray": "2 3" }));
+    const t = el("text", { x: padL - 6, y: Y(v) + 3.5, "text-anchor": "end", class: "axislab" });
+    t.textContent = fmt(v); svg.appendChild(t);
+  });
+  if (lo < 0 && hi > 0) svg.appendChild(el("line", { x1: padL, x2: W - padR, y1: Y(0), y2: Y(0), stroke: css("--axis"), "stroke-width": 1 }));
+  return { svg, Y, iw, ih, padL, padT, W, H };
+}
+function xLabels(f, labels, every){
+  labels.forEach((lb, i) => { if (i % every) return;
+    const x = f.padL + f.iw * (labels.length === 1 ? 0.5 : i / (labels.length - 1));
+    const t = el("text", { x, y: f.H - 6, "text-anchor": "middle", class: "axislab" });
+    t.textContent = lb; f.svg.appendChild(t); });
+}
+function lineChart(id, labels, series, opts){
+  const o = Object.assign({ H: 300, every: 4, dlabels: true, unit: "" }, opts || {});
+  const m = document.getElementById(id); m.innerHTML = "";
+  const all = series.flatMap(s => s.values).filter(v => v != null);
+  let lo = Math.min(...all), hi = Math.max(...all); const pad = (hi - lo) * 0.08;
+  lo = o.zero ? Math.min(0, lo) : lo - pad; hi = hi + pad;
+  const f = frame(m, 800, o.H, 44, o.dlabels ? 86 : 14, 10, 22, lo, hi);
+  const X = i => f.padL + f.iw * i / (labels.length - 1);
+  series.forEach(s => {
+    let d = "";
+    s.values.forEach((v, i) => { if (v == null) return; d += (d ? "L" : "M") + X(i) + " " + f.Y(v) + " "; });
+    f.svg.appendChild(el("path", { d, fill: "none", stroke: s.color, "stroke-width": 2,
+      "stroke-dasharray": s.dash ? "5 4" : "none", "stroke-linejoin": "round" }));
+    const lastIdx = s.values.length - 1;
+    if (o.dlabels){
+      const t = el("text", { x: X(lastIdx) + 6, y: f.Y(s.values[lastIdx]) + 4, class: "dlab", fill: s.color });
+      t.textContent = s.name; f.svg.appendChild(t);
+    }
+  });
+  xLabels(f, labels, o.every);
+  const guide = el("line", { y1: 10, y2: o.H - 22, stroke: css("--axis"), "stroke-width": 1, opacity: 0 });
+  f.svg.appendChild(guide);
+  f.svg.addEventListener("mousemove", ev => {
+    const r = f.svg.getBoundingClientRect(), sx = 800 / r.width;
+    const px = (ev.clientX - r.left) * sx;
+    let i = Math.round((px - f.padL) / f.iw * (labels.length - 1));
+    i = Math.max(0, Math.min(labels.length - 1, i));
+    guide.setAttribute("x1", X(i)); guide.setAttribute("x2", X(i)); guide.setAttribute("opacity", 0.6);
+    showTip("<b>" + labels[i] + "</b>" + series.map(s => `<div class="row"><i style="background:${s.color}"></i>${s.name}: <b>${fmt(s.values[i])}${o.unit}</b></div>`).join(""), ev.clientX, ev.clientY);
+  });
+  f.svg.addEventListener("mouseleave", () => { guide.setAttribute("opacity", 0); hideTip(); });
+}
+function barChart(id, labels, series, opts){
+  const o = Object.assign({ H: 300, every: 4, unit: "", horiz: false }, opts || {});
+  const m = document.getElementById(id); m.innerHTML = "";
+  const all = series.flatMap(s => s.values).filter(v => v != null);
+  let lo = Math.min(0, ...all), hi = Math.max(0, ...all) * 1.06;
+  const f = frame(m, 800, o.H, 44, 14, 10, 22, lo, hi);
+  const n = labels.length, ns = series.length;
+  const slot = f.iw / n, bw = Math.max(2, (slot - 2) / ns - 2);
+  labels.forEach((lb, i) => {
+    series.forEach((s, j) => {
+      const v = s.values[i]; if (v == null) return;
+      const x = f.padL + slot * i + (slot - (bw + 2) * ns) / 2 + j * (bw + 2);
+      const y0 = f.Y(Math.max(0, v)), y1 = f.Y(Math.min(0, v));
+      const color = (o.negColor && v < 0) ? o.negColor : s.color;
+      const rect = el("rect", { x, y: y0, width: bw, height: Math.max(1, y1 - y0),
+        fill: s.hollow && s.hollowFrom !== undefined && i >= s.hollowFrom ? "none" : color,
+        stroke: color, "stroke-width": s.hollow && s.hollowFrom !== undefined && i >= s.hollowFrom ? 1.5 : 0,
+        rx: 2 });
+      rect.addEventListener("mousemove", ev => showTip(`<b>${lb}</b><div class="row"><i style="background:${color}"></i>${s.name}: <b>${fmt(v)}${o.unit}</b></div>`, ev.clientX, ev.clientY));
+      rect.addEventListener("mouseleave", hideTip);
+      f.svg.appendChild(rect);
+    });
+  });
+  xLabels(f, labels, o.every);
+}
+function hbarChart(id, labels, series, opts){
+  const o = Object.assign({ unit: "" }, opts || {});
+  const m = document.getElementById(id); m.innerHTML = "";
+  const all = series.flatMap(s => s.values).filter(v => v != null);
+  const hi = Math.max(...all) * 1.05;
+  const rowH = 16 * series.length + 12, H = labels.length * rowH + 24;
+  const svg = el("svg", { viewBox: `0 0 800 ${H}` }); m.appendChild(svg);
+  const padL = 128, iw = 800 - padL - 60;
+  niceTicks(0, hi, 4).forEach(v => {
+    const x = padL + iw * v / hi;
+    svg.appendChild(el("line", { x1: x, x2: x, y1: 6, y2: H - 18, stroke: css("--grid"), "stroke-width": 1, "stroke-dasharray": "2 3" }));
+    const t = el("text", { x, y: H - 5, "text-anchor": "middle", class: "axislab" }); t.textContent = fmt(v); svg.appendChild(t);
+  });
+  labels.forEach((lb, i) => {
+    const y0 = 8 + i * rowH;
+    const t = el("text", { x: padL - 8, y: y0 + rowH / 2, "text-anchor": "end", class: "axislab", "font-size": 11.5 });
+    t.textContent = lb; svg.appendChild(t);
+    series.forEach((s, j) => {
+      const v = s.values[i]; if (v == null) return;
+      const w = iw * v / hi, y = y0 + 3 + j * 16;
+      const rect = el("rect", { x: padL, y, width: w, height: 12, fill: s.color, rx: 2 });
+      rect.addEventListener("mousemove", ev => showTip(`<b>${lb}</b><div class="row"><i style="background:${s.color}"></i>${s.name}: <b>${fmt(v)}${o.unit}</b></div>`, ev.clientX, ev.clientY));
+      rect.addEventListener("mouseleave", hideTip);
+      svg.appendChild(rect);
+    });
+  });
+}
+function legend(id, items){
+  document.getElementById(id).innerHTML = items.map(it => `<span><i style="background:${it[1]}"></i>${it[0]}</span>`).join("");
+}
+
+const S1 = css("--s1"), S2 = css("--s2"), S3 = css("--s3"), S4 = css("--s4"), NEG = css("--neg");
+
+// RPPI multi-line
+legend("lg1", [["RPPI (all residential)", S1], ["Apartments, Yerevan", S2], ["Yerevan-Center", S3], ["Houses, Armenia", S4]]);
+lineChart("c_idx", D.q, [
+  { name: "RPPI", color: S1, values: D.idx.rppi },
+  { name: "Apts Yerevan", color: S2, values: D.idx.aptYER },
+  { name: "Center", color: S3, values: D.idx.center },
+  { name: "Houses", color: S4, values: D.idx.houses },
+], { H: 330, every: 4 });
+
+// y/y bars
+barChart("c_yoy", D.q, [{ name: "RPPI y/y", color: S1, values: D.yoy.rppi }], { H: 260, every: 4, unit: "%", negColor: NEG });
+
+// zones small multiples
+const zones = [["Center", "center"], ["East", "east"], ["North", "north"], ["South", "south"], ["West", "west"], ["Outside Yerevan", "outside"]];
+const zm = document.getElementById("c_zones");
+zones.forEach(([nm, key]) => {
+  const box = document.createElement("div"); box.className = "small";
+  const last = D.idx[key][D.idx[key].length - 1];
+  box.innerHTML = `<h4>${nm}</h4><p class="v">2026Q2: ${last} (2018=100)</p><div class="chart" id="z_${key}"></div>`;
+  zm.appendChild(box);
+});
+zones.forEach(([nm, key]) => lineChart("z_" + key, D.q, [{ name: "", color: S1, values: D.idx[key] }], { H: 150, every: 8, dlabels: false }));
+
+// transactions
+barChart("c_tx", D.q, [{ name: "Transactions", color: S1, values: D.tx }], { H: 260, every: 4 });
+
+// districts grouped horizontal
+legend("lg2", [["July 2022", css("--axis")], ["June 2026", S1]]);
+hbarChart("c_dist", D.districts.names, [
+  { name: "Jul 2022", color: css("--axis"), values: D.districts.p2022 },
+  { name: "Jun 2026", color: S1, values: D.districts.p2026 },
+], { unit: "k AMD/sqm" });
+
+// new-build premium
+legend("lg3", [["Secondary avg (Jun 2026)", S1], ["New-build min asking (Jul 2026)", S2]]);
+hbarChart("c_nb", D.districts.names, [
+  { name: "Secondary", color: S1, values: D.districts.p2026 },
+  { name: "New-build", color: S2, values: D.districts.nb },
+], { unit: "k AMD/sqm" });
+
+// WEO small multiples
+const weoDefs = [
+  ["Real GDP growth (%)", "gdp", "bar"],
+  ["CPI inflation, avg (%)", "cpi", "line"],
+  ["Current account (% of GDP)", "ca", "bar"],
+  ["Government debt (% of GDP)", "debt", "line"],
+];
+const wm = document.getElementById("c_weo");
+const yrs = D.weo.years, i0 = yrs.indexOf(2015), iproj = yrs.indexOf(2026);
+weoDefs.forEach(([nm, key]) => {
+  const box = document.createElement("div"); box.className = "small";
+  const v26 = D.weo[key][iproj];
+  box.innerHTML = `<h4>${nm}</h4><p class="v">2026 proj.: ${fmt(v26)}</p><div class="chart" id="w_${key}"></div>`;
+  wm.appendChild(box);
+});
+weoDefs.forEach(([nm, key, kind]) => {
+  const labels = yrs.slice(i0).map(String), vals = D.weo[key].slice(i0);
+  if (kind === "bar")
+    barChart("w_" + key, labels, [{ name: nm, color: S1, values: vals, hollow: true, hollowFrom: iproj - i0 }], { H: 160, every: 4, negColor: key === "ca" ? NEG : undefined, unit: "" });
+  else {
+    const hist = vals.map((v, i) => i <= iproj - i0 ? v : null);
+    const proj = vals.map((v, i) => i >= iproj - i0 ? v : null);
+    lineChart("w_" + key, labels, [
+      { name: "", color: S1, values: hist },
+      { name: "", color: S1, values: proj, dash: true },
+    ], { H: 160, every: 4, dlabels: false });
+  }
+});
+
+// rent
+lineChart("c_rent", D.rent.years.map(String), [{ name: "1BR center", color: S2, values: D.rent.usd }], { H: 240, every: 1, dlabels: false, unit: " US$" });
+</script>
+</body>
+</html>
